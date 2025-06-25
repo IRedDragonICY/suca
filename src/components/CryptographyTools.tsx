@@ -13,6 +13,7 @@ import {
   Tab,
   IconButton,
   Tooltip,
+  Chip,
 } from '@mui/material';
 import {
   Security as SecurityIcon,
@@ -22,6 +23,12 @@ import {
   Transform as TransformIcon,
   VpnKey as VpnKeyIcon,
   Code as CodeIcon,
+  Filter1 as DecimalIcon,
+  DeveloperMode as BinaryIcon,
+  Tag as HexIcon,
+  Filter8 as OctalIcon,
+  Numbers as NumbersIcon,
+  TextFields as TextIcon,
 } from '@mui/icons-material';
 
 interface TabPanelProps {
@@ -55,6 +62,7 @@ const CryptographyTools: React.FC = () => {
   // Number Base Converter
   const [inputValue, setInputValue] = useState('255');
   const [inputBase, setInputBase] = useState('decimal');
+  const [inputMode, setInputMode] = useState<'number' | 'text'>('number');
   const [results, setResults] = useState({
     decimal: '',
     binary: '',
@@ -99,40 +107,112 @@ const CryptographyTools: React.FC = () => {
     setTabValue(newValue);
   };
 
+  // Base options for chip selector
+  const baseOptions = [
+    {
+      value: 'decimal',
+      label: 'DEC',
+      description: 'Decimal (10)',
+      icon: <DecimalIcon />,
+      color: '#1976d2' as const,
+    },
+    {
+      value: 'binary',
+      label: 'BIN',
+      description: 'Binary (2)',
+      icon: <BinaryIcon />,
+      color: '#2e7d32' as const,
+    },
+    {
+      value: 'hexadecimal',
+      label: 'HEX',
+      description: 'Hexadecimal (16)',
+      icon: <HexIcon />,
+      color: '#ed6c02' as const,
+    },
+    {
+      value: 'octal',
+      label: 'OCT',
+      description: 'Octal (8)',
+      icon: <OctalIcon />,
+      color: '#9c27b0' as const,
+    },
+  ];
+
+  const handleBaseChange = (base: string) => {
+    setInputBase(base);
+  };
+
+  const handleInputModeChange = (mode: 'number' | 'text') => {
+    setInputMode(mode);
+    // Clear input when switching modes
+    setInputValue('');
+    // Reset to decimal base when switching to text mode
+    if (mode === 'text') {
+      setInputBase('decimal');
+    }
+  };
+
   // Number Base Converter Functions
   const convertNumber = () => {
     try {
-      let decimalValue: number;
-      
-      // Parse input based on selected base
-      switch (inputBase) {
-        case 'decimal':
-          decimalValue = parseInt(inputValue, 10);
-          break;
-        case 'binary':
-          decimalValue = parseInt(inputValue, 2);
-          break;
-        case 'hexadecimal':
-          decimalValue = parseInt(inputValue, 16);
-          break;
-        case 'octal':
-          decimalValue = parseInt(inputValue, 8);
-          break;
-        default:
-          decimalValue = parseInt(inputValue, 10);
-      }
+      if (inputMode === 'text') {
+        // Convert text to ASCII values and then to different bases
+        if (!inputValue) {
+          setResults({
+            decimal: '',
+            binary: '',
+            hexadecimal: '',
+            octal: '',
+            base64: '',
+          });
+          return;
+        }
 
-      if (isNaN(decimalValue)) {
-        throw new Error('Invalid input');
-      }
+        // Get ASCII values for each character
+        const asciiValues = inputValue.split('').map(char => char.charCodeAt(0));
+        
+        setResults({
+          decimal: asciiValues.join(' '),
+          binary: asciiValues.map(val => val.toString(2).padStart(8, '0')).join(' '),
+          hexadecimal: asciiValues.map(val => val.toString(16).toUpperCase().padStart(2, '0')).join(' '),
+          octal: asciiValues.map(val => val.toString(8).padStart(3, '0')).join(' '),
+          base64: btoa(inputValue),
+        });
+      } else {
+        // Original number conversion logic
+        let decimalValue: number;
+        
+        // Parse input based on selected base
+        switch (inputBase) {
+          case 'decimal':
+            decimalValue = parseInt(inputValue, 10);
+            break;
+          case 'binary':
+            decimalValue = parseInt(inputValue, 2);
+            break;
+          case 'hexadecimal':
+            decimalValue = parseInt(inputValue, 16);
+            break;
+          case 'octal':
+            decimalValue = parseInt(inputValue, 8);
+            break;
+          default:
+            decimalValue = parseInt(inputValue, 10);
+        }
 
-      setResults({
-        decimal: decimalValue.toString(10),
-        binary: decimalValue.toString(2),
-        hexadecimal: decimalValue.toString(16).toUpperCase(),
-        octal: decimalValue.toString(8),
-        base64: btoa(decimalValue.toString()),
-      });
+        if (isNaN(decimalValue)) {
+          throw new Error('Invalid input');
+        }
+
+        setResults({
+          decimal: decimalValue.toString(10),
+          binary: decimalValue.toString(2),
+          hexadecimal: decimalValue.toString(16).toUpperCase(),
+          octal: decimalValue.toString(8),
+          base64: btoa(decimalValue.toString()),
+        });
+      }
     } catch (error) {
       setResults({
         decimal: 'Error',
@@ -244,7 +324,7 @@ const CryptographyTools: React.FC = () => {
   // Auto-convert when input changes
   useEffect(() => {
     if (inputValue) convertNumber();
-  }, [inputValue, inputBase, convertNumber]);
+  }, [inputValue, inputBase, inputMode]);
 
   useEffect(() => {
     if (textInput) encodeText();
@@ -289,7 +369,12 @@ const CryptographyTools: React.FC = () => {
           <TabPanel value={tabValue} index={0}>
             <Stack spacing={3}>
               <Alert severity="info" sx={{ borderRadius: 2 }}>
-                Convert numbers between different number systems: Decimal, Binary, Hexadecimal, Octal, and Base64
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  <strong>Number Mode:</strong> Convert numbers between different number systems (Decimal, Binary, Hexadecimal, Octal)
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Text Mode:</strong> Convert text to ASCII values displayed in different number bases
+                </Typography>
               </Alert>
               
               <Card elevation={0} sx={{ bgcolor: 'background.default', borderRadius: 3 }}>
@@ -297,44 +382,156 @@ const CryptographyTools: React.FC = () => {
                   <Typography variant="h6" gutterBottom color="primary">
                     Input
                   </Typography>
-                  <Box sx={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: { xs: '1fr', md: '2fr 1fr 0.5fr' },
-                    gap: 2,
-                    alignItems: 'center'
-                  }}>
+                  <Stack spacing={3}>
+                    {/* Input Mode Selection */}
+                    <Box>
+                      <Typography variant="subtitle2" gutterBottom color="text.secondary" sx={{ mb: 2 }}>
+                        Input Mode
+                      </Typography>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        gap: 1.5,
+                        justifyContent: 'center',
+                        mb: 2
+                      }}>
+                        <Chip
+                          icon={<NumbersIcon />}
+                          label="Number"
+                          variant={inputMode === 'number' ? 'filled' : 'outlined'}
+                          color={inputMode === 'number' ? 'primary' : 'default'}
+                          onClick={() => handleInputModeChange('number')}
+                          sx={{
+                            height: 40,
+                            fontSize: '0.875rem',
+                            fontWeight: 600,
+                            borderRadius: 5,
+                            transition: 'all 0.2s ease-in-out',
+                            cursor: 'pointer',
+                            '&:hover': {
+                              transform: 'translateY(-2px)',
+                              boxShadow: 2,
+                            },
+                          }}
+                        />
+                        <Chip
+                          icon={<TextIcon />}
+                          label="Text"
+                          variant={inputMode === 'text' ? 'filled' : 'outlined'}
+                          color={inputMode === 'text' ? 'primary' : 'default'}
+                          onClick={() => handleInputModeChange('text')}
+                          sx={{
+                            height: 40,
+                            fontSize: '0.875rem',
+                            fontWeight: 600,
+                            borderRadius: 5,
+                            transition: 'all 0.2s ease-in-out',
+                            cursor: 'pointer',
+                            '&:hover': {
+                              transform: 'translateY(-2px)',
+                              boxShadow: 2,
+                            },
+                          }}
+                        />
+                      </Box>
+                    </Box>
+
                     <TextField
                       fullWidth
-                      label="Enter Value"
+                      label={inputMode === 'number' ? 'Enter Number' : 'Enter Text'}
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
-                      placeholder="Enter number to convert"
+                      placeholder={inputMode === 'number' ? 'Enter number to convert' : 'Enter text to convert to ASCII numbers'}
+                      multiline={inputMode === 'text'}
+                      rows={inputMode === 'text' ? 2 : 1}
                       sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                     />
-                    <TextField
-                      fullWidth
-                      select
-                      label="Input Base"
-                      value={inputBase}
-                      onChange={(e) => setInputBase(e.target.value)}
-                      SelectProps={{ native: true }}
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                    >
-                      <option value="decimal">Decimal (10)</option>
-                      <option value="binary">Binary (2)</option>
-                      <option value="hexadecimal">Hexadecimal (16)</option>
-                      <option value="octal">Octal (8)</option>
-                    </TextField>
+                    
+                    {/* Base Selection - Only show for number mode */}
+                    {inputMode === 'number' && (
+                      <Box>
+                        <Typography variant="subtitle2" gutterBottom color="text.secondary" sx={{ mb: 2 }}>
+                          Select Input Base
+                        </Typography>
+                        <Box sx={{ 
+                          display: 'flex', 
+                          flexWrap: 'wrap',
+                          gap: 1.5,
+                          justifyContent: 'center'
+                        }}>
+                          {baseOptions.map((option) => (
+                            <Chip
+                              key={option.value}
+                              icon={option.icon}
+                              label={option.label}
+                              variant={inputBase === option.value ? 'filled' : 'outlined'}
+                              color={inputBase === option.value ? 'primary' : 'default'}
+                              onClick={() => handleBaseChange(option.value)}
+                              sx={{
+                                height: 40,
+                                fontSize: '0.875rem',
+                                fontWeight: 600,
+                                borderRadius: 5,
+                                transition: 'all 0.2s ease-in-out',
+                                cursor: 'pointer',
+                                '&:hover': {
+                                  transform: 'translateY(-2px)',
+                                  boxShadow: 2,
+                                },
+                                ...(inputBase === option.value && {
+                                  bgcolor: option.color,
+                                  color: 'white',
+                                  '& .MuiChip-icon': {
+                                    color: 'white',
+                                  },
+                                  '&:hover': {
+                                    bgcolor: option.color,
+                                    opacity: 0.9,
+                                  }
+                                }),
+                                ...(inputBase !== option.value && {
+                                  '&:hover': {
+                                    bgcolor: `${option.color}15`,
+                                    borderColor: option.color,
+                                    '& .MuiChip-icon': {
+                                      color: option.color,
+                                    }
+                                  }
+                                })
+                              }}
+                            />
+                          ))}
+                        </Box>
+                        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block', textAlign: 'center' }}>
+                          {baseOptions.find(opt => opt.value === inputBase)?.description}
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {/* Text mode explanation */}
+                    {inputMode === 'text' && (
+                      <Alert severity="info" sx={{ borderRadius: 2 }}>
+                        <Typography variant="body2">
+                          Text mode converts each character to its ASCII value and displays it in different number bases.
+                        </Typography>
+                      </Alert>
+                    )}
+
                     <Button
                       fullWidth
                       variant="contained"
                       onClick={convertNumber}
                       startIcon={<SwapHorizIcon />}
-                      sx={{ height: '56px', borderRadius: 2 }}
+                      sx={{ 
+                        height: '48px', 
+                        borderRadius: 3,
+                        textTransform: 'none',
+                        fontSize: '1rem',
+                        fontWeight: 600,
+                      }}
                     >
-                      Convert
+                      {inputMode === 'number' ? 'Convert Number' : 'Convert Text to ASCII'}
                     </Button>
-                  </Box>
+                  </Stack>
                 </CardContent>
               </Card>
 
@@ -347,7 +544,7 @@ const CryptographyTools: React.FC = () => {
                   <Paper key={key} sx={{ p: 2, borderRadius: 2, bgcolor: 'background.default' }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                       <Typography variant="subtitle2" color="primary" textTransform="capitalize">
-                        {key}
+                        {key} {inputMode === 'text' && key !== 'base64' ? `(ASCII)` : ''}
                       </Typography>
                       <Tooltip title="Copy to clipboard">
                         <IconButton size="small" onClick={() => copyToClipboard(value)}>
@@ -356,8 +553,16 @@ const CryptographyTools: React.FC = () => {
                       </Tooltip>
                     </Box>
                     <Typography variant="body1" sx={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>
-                      {value || 'Enter a value to convert'}
+                      {value || (inputMode === 'number' ? 'Enter a number to convert' : 'Enter text to convert to ASCII')}
                     </Typography>
+                    {inputMode === 'text' && value && key !== 'base64' && (
+                      <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                        {key === 'decimal' && 'ASCII values separated by spaces'}
+                        {key === 'binary' && '8-bit binary representation of each character'}
+                        {key === 'hexadecimal' && 'Hexadecimal ASCII values (2 digits each)'}
+                        {key === 'octal' && 'Octal ASCII values (3 digits each)'}
+                      </Typography>
+                    )}
                   </Paper>
                 ))}
               </Box>

@@ -1,0 +1,234 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for SUCA
+title: "✨ [Feature]: "
+labels: ["enhancement", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🌟 Thanks for suggesting a new feature!
+        
+        Your ideas help make SUCA better for everyone. Please provide as much detail as possible
+        to help us understand and evaluate your suggestion. 🚀
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 📋 Pre-submission Checklist
+      description: Please verify these before submitting
+      options:
+        - label: I searched existing issues and discussions for similar requests
+          required: true
+        - label: This feature would benefit other users, not just me
+          required: true
+        - label: I'm willing to help test this feature when available
+          required: false
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 🎯 Feature Summary
+      description: A clear, concise summary of the feature you'd like to see
+      placeholder: "I would like SUCA to..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 🤔 Problem Statement
+      description: What problem does this feature solve? What's the current pain point?
+      placeholder: |
+        Currently, when I try to... I experience...
+        This makes it difficult to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 💡 Proposed Solution
+      description: Describe your proposed solution in detail
+      placeholder: |
+        I suggest adding...
+        This would work by...
+        Users would interact with it by...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: 🎯 Component/Area
+      description: Which component would this feature primarily affect?
+      options:
+        - IPv4 Calculator
+        - IPv6 Calculator
+        - Subnet Division
+        - Cryptography Tools
+        - Network Tools
+        - UI/UX
+        - Export/Import
+        - Performance
+        - Accessibility
+        - Multi-language
+        - New Component
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 🔥 Priority
+      description: How important is this feature to you?
+      options:
+        - Nice to have - Would be cool but not essential
+        - Moderate - Would improve my workflow
+        - High - Would significantly improve usability
+        - Critical - Current limitations block important use cases
+    validations:
+      required: true
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: 🧩 Estimated Complexity
+      description: How complex do you think this feature might be to implement?
+      options:
+        - Low - Small UI change or simple calculation
+        - Medium - New component or moderate algorithm
+        - High - Major feature requiring significant changes
+        - Unknown - I'm not sure about the complexity
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: 📋 Use Cases
+      description: Describe specific scenarios where this feature would be useful
+      placeholder: |
+        1. As a network administrator, I want to... so that...
+        2. When configuring subnets, I need to... because...
+        3. For security audits, this would help by...
+    validations:
+      required: true
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: 🎨 Mockups/Wireframes
+      description: Add screenshots, mockups, or drawings of how this might look
+      placeholder: Drag and drop images here, paste URLs, or describe the UI...
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 🔄 Alternative Solutions
+      description: What alternatives have you considered?
+      placeholder: |
+        I also considered...
+        Other tools solve this by...
+        Current workarounds include...
+
+  - type: checkboxes
+    id: target-users
+    attributes:
+      label: 👥 Target Users
+      description: Who would benefit from this feature? (Check all that apply)
+      options:
+        - label: Network administrators
+        - label: System administrators
+        - label: Security professionals
+        - label: Students/learners
+        - label: IT consultants
+        - label: Software developers
+        - label: Casual users
+        - label: Power users
+
+  - type: checkboxes
+    id: platforms
+    attributes:
+      label: 🖥️ Platform Considerations
+      description: Which platforms should support this feature?
+      options:
+        - label: Windows
+        - label: macOS
+        - label: Linux
+        - label: Web version
+        - label: All platforms
+
+  - type: textarea
+    id: technical-notes
+    attributes:
+      label: 🔧 Technical Notes
+      description: Any technical considerations, constraints, or implementation ideas
+      placeholder: |
+        This might require...
+        Could integrate with...
+        Performance considerations...
+
+  - type: textarea
+    id: breaking-changes
+    attributes:
+      label: ⚠️ Breaking Changes
+      description: Would this feature require any breaking changes to existing functionality?
+      placeholder: This feature might affect existing... / This should be fully backward compatible...
+
+  - type: dropdown
+    id: availability
+    attributes:
+      label: ⏰ When do you need this?
+      description: What's your timeline for this feature?
+      options:
+        - No rush - Future enhancement
+        - Few months - Would be nice in next major version
+        - Soon - Needed for upcoming project
+        - Urgent - Blocking current work
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: 📚 Examples from Other Tools
+      description: Are there similar features in other tools that work well?
+      placeholder: |
+        Tool X has a similar feature that...
+        I like how Tool Y handles this by...
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: 🤝 Contribution Interest
+      description: Would you be interested in helping with this feature?
+      options:
+        - label: I could help with design/mockups
+        - label: I could help with documentation
+        - label: I could help with testing
+        - label: I could help with code implementation
+        - label: I could provide subject matter expertise
+        - label: I'm just suggesting but won't contribute directly
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📝 Additional Context
+      description: Any other information that might be helpful
+      placeholder: Additional thoughts, references, links, etc...
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        
+        ## 🙏 Thank you for your suggestion!
+        
+        Feature requests are invaluable for making SUCA better. We'll review this carefully and discuss implementation possibilities.
+        
+        💡 **Want to discuss this further?** Start a [discussion](https://github.com/yourusername/suca/discussions) to get community feedback!
+        
+        📧 **Stay updated:** Watch this issue to receive notifications about progress. 

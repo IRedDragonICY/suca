@@ -40,10 +40,29 @@ function createWindow() {
     thickFrame: false
   });
 
-  // Load the app
-  const startUrl = isDev 
-    ? 'http://localhost:3000' 
-    : `file://${path.join(__dirname, 'build/index.html')}`;
+  // Load the app - Force static files for production builds
+  let startUrl;
+  
+  // Always use static files for packaged app or when forced
+  const isPackaged = app.isPackaged;
+  const forceStatic = process.env.ELECTRON_FORCE_STATIC === 'true';
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  if (!isPackaged && !forceStatic && !isProduction && isDev) {
+    // Development mode with localhost
+    startUrl = 'http://localhost:3000';
+  } else {
+    // Production mode - use static files
+    startUrl = `file://${path.join(__dirname, 'build/index.html')}`;
+  }
+  
+  console.log('Loading URL:', startUrl);
+  console.log('isDev:', isDev);
+  console.log('isPackaged:', isPackaged);
+  console.log('forceStatic:', forceStatic);
+  console.log('isProduction:', isProduction);
+  console.log('NODE_ENV:', process.env.NODE_ENV);
+  console.log('__dirname:', __dirname);
   
   mainWindow.loadURL(startUrl);
 

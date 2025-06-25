@@ -16,8 +16,8 @@ import {
 } from '@mui/material';
 import {
   ContentCopy as ContentCopyIcon,
-  Language as LanguageIcon,
   Calculate as CalculateIcon,
+  Language as LanguageIcon,
 } from '@mui/icons-material';
 import {
   isValidIPv6,
@@ -58,14 +58,9 @@ const IPv6Calculator: React.FC = () => {
   };
 
   return (
-    <Box>
+    <Box sx={{ p: 3 }}>
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <LanguageIcon color="primary" />
-            IPv6 Subnet Calculator
-          </Typography>
-          
           <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', md: 'row' }, mt: 1 }}>
             <TextField
               fullWidth

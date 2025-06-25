@@ -10,7 +10,6 @@ import {
   Box,
   Tabs,
   Tab,
-  Paper,
   useMediaQuery,
   Fade,
   Stack,
@@ -23,19 +22,17 @@ import {
   GitHub as GitHubIcon,
   AccountTree as AccountTreeIcon,
   Security as SecurityIcon,
-  Language as LanguageIcon,
-  RouterOutlined as RouterOutlinedIcon,
   Build as BuildIcon,
   Minimize as MinimizeIcon,
   CropSquare as MaximizeIcon,
   Close as CloseIcon,
   FilterNone as RestoreIcon,
+  NetworkCheck as NetworkCheckIcon,
 } from '@mui/icons-material';
 import { theme, darkTheme } from './theme';
 import SubnetDivision from './components/SubnetDivision';
 import CryptographyTools from './components/CryptographyTools';
-import IPv4Calculator from './components/IPv4Calculator';
-import IPv6Calculator from './components/IPv6Calculator';
+import IPCalculator from './components/IPCalculator';
 import NetworkTools from './components/NetworkTools';
 import './App.css';
 
@@ -71,8 +68,8 @@ function TabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (
-        <Fade in={true} timeout={500}>
-          <Box sx={{ py: 3 }}>
+        <Fade in={true} timeout={300}>
+          <Box sx={{ height: '100%' }}>
             {children}
           </Box>
         </Fade>
@@ -111,29 +108,33 @@ function CustomTitleBar({ darkMode, onToggleDarkMode }: { darkMode: boolean; onT
   return (
     <Box
       sx={{
-        height: 48,
-        background: 'linear-gradient(135deg, rgba(103, 80, 164, 0.1) 0%, rgba(98, 91, 113, 0.05) 100%)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: 1,
-        borderColor: 'divider',
+        height: 40,
+        background: theme => theme.palette.mode === 'dark' 
+          ? 'rgba(28, 27, 31, 0.95)' 
+          : 'rgba(254, 247, 255, 0.95)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        borderBottom: theme => `1px solid ${theme.palette.divider}`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        px: 3,
+        px: 2,
         WebkitAppRegion: 'drag',
-        position: 'relative',
-        zIndex: 1000,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1200,
       }}
     >
       {/* Left side - App info */}
-      <Stack direction="row" alignItems="center" spacing={2} sx={{ minWidth: 0, overflow: 'hidden' }}>
-        <RouterIcon sx={{ color: 'primary.main', fontSize: 24, flexShrink: 0 }} />
+      <Stack direction="row" alignItems="center" spacing={1.5} sx={{ minWidth: 0, overflow: 'hidden' }}>
+        <RouterIcon sx={{ color: 'primary.main', fontSize: 20, flexShrink: 0 }} />
         <Typography
           variant="subtitle2"
           sx={{
             fontWeight: 600,
             color: 'text.primary',
-            fontSize: '0.925rem',
+            fontSize: '0.875rem',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -147,102 +148,97 @@ function CustomTitleBar({ darkMode, onToggleDarkMode }: { darkMode: boolean; onT
       <Box sx={{ flex: 1, minWidth: 20 }} />
 
       {/* Right side - Controls */}
-      <Stack direction="row" alignItems="center" spacing={1} sx={{ WebkitAppRegion: 'no-drag', flexShrink: 0 }}>
+      <Stack direction="row" alignItems="center" spacing={0.5} sx={{ WebkitAppRegion: 'no-drag', flexShrink: 0 }}>
         <IconButton
           size="small"
           onClick={onToggleDarkMode}
           sx={{
-            color: 'text.secondary',
-            width: 36,
-            height: 36,
-            borderRadius: 2,
+            color: theme => theme.palette.mode === 'dark' ? 'text.secondary' : 'text.primary',
+            width: 32,
+            height: 32,
+            borderRadius: '8px',
             '&:hover': {
               bgcolor: 'action.hover',
               color: 'primary.main',
-              transform: 'scale(1.05)',
             },
             transition: 'all 0.2s ease'
           }}
         >
-          {darkMode ? <Brightness7Icon fontSize="small" /> : <Brightness4Icon fontSize="small" />}
+          {darkMode ? <Brightness7Icon sx={{ fontSize: 18 }} /> : <Brightness4Icon sx={{ fontSize: 18 }} />}
         </IconButton>
         
         <IconButton
           size="small"
           onClick={() => window.open('https://github.com/yourusername/suca', '_blank')}
           sx={{
-            color: 'text.secondary',
-            width: 36,
-            height: 36,
-            borderRadius: 2,
+            color: theme => theme.palette.mode === 'dark' ? 'text.secondary' : 'text.primary',
+            width: 32,
+            height: 32,
+            borderRadius: '8px',
             '&:hover': {
               bgcolor: 'action.hover',
               color: 'primary.main',
-              transform: 'scale(1.05)',
             },
             transition: 'all 0.2s ease'
           }}
         >
-          <GitHubIcon fontSize="small" />
+          <GitHubIcon sx={{ fontSize: 18 }} />
         </IconButton>
 
-        <Divider orientation="vertical" flexItem sx={{ mx: 1, height: 24, alignSelf: 'center' }} />
+        <Divider orientation="vertical" flexItem sx={{ mx: 0.5, height: 20, alignSelf: 'center' }} />
 
         <IconButton
           size="small"
           onClick={handleMinimize}
           sx={{
-            color: 'text.secondary',
-            width: 36,
-            height: 36,
-            borderRadius: 2,
+            color: theme => theme.palette.mode === 'dark' ? 'text.secondary' : 'text.primary',
+            width: 32,
+            height: 32,
+            borderRadius: '8px',
             '&:hover': {
               bgcolor: 'warning.light',
               color: 'warning.main',
-              transform: 'scale(1.05)',
             },
             transition: 'all 0.2s ease'
           }}
         >
-          <MinimizeIcon fontSize="small" />
+          <MinimizeIcon sx={{ fontSize: 18 }} />
         </IconButton>
 
         <IconButton
           size="small"
           onClick={handleMaximize}
           sx={{
-            color: 'text.secondary',
-            width: 36,
-            height: 36,
-            borderRadius: 2,
+            color: theme => theme.palette.mode === 'dark' ? 'text.secondary' : 'text.primary',
+            width: 32,
+            height: 32,
+            borderRadius: '8px',
             '&:hover': {
               bgcolor: 'success.light',
               color: 'success.main',
-              transform: 'scale(1.05)',
             },
             transition: 'all 0.2s ease'
           }}
         >
-          {isMaximized ? <RestoreIcon fontSize="small" /> : <MaximizeIcon fontSize="small" />}
+          {isMaximized ? <RestoreIcon sx={{ fontSize: 18 }} /> : <MaximizeIcon sx={{ fontSize: 18 }} />}
         </IconButton>
 
         <IconButton
           size="small"
           onClick={handleClose}
           sx={{
-            color: 'text.secondary',
-            width: 36,
-            height: 36,
-            borderRadius: 2,
+            color: theme => theme.palette.mode === 'dark' ? 'text.secondary' : 'text.primary',
+            width: 32,
+            height: 32,
+            borderRadius: '8px',
             '&:hover': {
               bgcolor: 'error.light',
               color: 'error.main',
-              transform: 'scale(1.05)',
             },
             transition: 'all 0.2s ease'
           }}
         >
-          <CloseIcon fontSize="small" />
+          <CloseIcon sx={{ fontSize: 18 }} />
         </IconButton>
       </Stack>
     </Box>
@@ -267,6 +263,11 @@ function App() {
 
   const tabs = [
     {
+      label: 'IP Calculator',
+      icon: <NetworkCheckIcon />,
+      component: <IPCalculator />
+    },
+    {
       label: 'Subnet Division',
       icon: <AccountTreeIcon />,
       component: <SubnetDivision />
@@ -275,16 +276,6 @@ function App() {
       label: 'Cryptography',
       icon: <SecurityIcon />,
       component: <CryptographyTools />
-    },
-    {
-      label: 'IPv4 Calculator',
-      icon: <RouterOutlinedIcon />,
-      component: <IPv4Calculator />
-    },
-    {
-      label: 'IPv6 Calculator',
-      icon: <LanguageIcon />,
-      component: <IPv6Calculator />
     },
     {
       label: 'Network Tools',
@@ -300,7 +291,9 @@ function App() {
         flexGrow: 1, 
         minHeight: '100vh', 
         bgcolor: 'background.default',
-        overflow: 'hidden'
+        display: 'flex',
+        flexDirection: 'column',
+        pt: isElectron ? '40px' : 0,
       }}>
         {/* Custom Title Bar for Electron */}
         <CustomTitleBar darkMode={darkMode} onToggleDarkMode={handleToggleDarkMode} />
@@ -322,16 +315,20 @@ function App() {
                 SUCA - Subnet Calculator & Cryptography Tools
               </Typography>
               <IconButton
-                sx={{ ml: 1 }}
+                sx={{ 
+                  ml: 1,
+                  color: 'text.primary',
+                }}
                 onClick={() => window.open('https://github.com/yourusername/suca', '_blank')}
-                color="inherit"
               >
                 <GitHubIcon />
               </IconButton>
               <IconButton
-                sx={{ ml: 1 }}
+                sx={{ 
+                  ml: 1,
+                  color: 'text.primary',
+                }}
                 onClick={handleToggleDarkMode}
-                color="inherit"
               >
                 {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
               </IconButton>
@@ -339,69 +336,61 @@ function App() {
           </AppBar>
         )}
 
-        <Container 
-          maxWidth="lg" 
-          sx={{ 
-            mt: isElectron ? 2 : 4, 
-            mb: 4,
-            height: isElectron ? 'calc(100vh - 96px)' : 'auto',
-            overflow: 'auto',
-            px: { xs: 2, sm: 3, md: 4 }
+        {/* Tab Bar */}
+        <Box
+          sx={{
+            bgcolor: 'background.paper',
+            borderBottom: 1,
+            borderColor: 'divider',
+            position: 'sticky',
+            top: isElectron ? '40px' : 0,
+            zIndex: 1100,
+            boxShadow: theme => theme.palette.mode === 'dark' 
+              ? '0 2px 8px rgba(0,0,0,0.3)' 
+              : '0 2px 8px rgba(0,0,0,0.05)',
           }}
         >
-          <Paper 
-            elevation={0} 
-            sx={{ 
-              bgcolor: 'background.paper',
-              borderRadius: 4,
-              overflow: 'hidden',
-              boxShadow: darkMode 
-                ? '0px 8px 32px rgba(0, 0, 0, 0.3)' 
-                : '0px 8px 32px rgba(103, 80, 164, 0.1)',
-              border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(103, 80, 164, 0.1)',
-              height: isElectron ? '100%' : 'auto',
-              display: 'flex',
-              flexDirection: 'column'
-            }}
-          >
+          <Container maxWidth="xl">
             <Tabs
               value={tabValue}
               onChange={handleTabChange}
-              indicatorColor="primary"
-              textColor="primary"
               variant="scrollable"
               scrollButtons="auto"
               allowScrollButtonsMobile
               sx={{
-                borderBottom: 1,
-                borderColor: 'divider',
-                background: darkMode 
-                  ? 'linear-gradient(135deg, rgba(208, 188, 255, 0.05) 0%, rgba(204, 194, 220, 0.02) 100%)'
-                  : 'linear-gradient(135deg, rgba(103, 80, 164, 0.05) 0%, rgba(98, 91, 113, 0.02) 100%)',
-                '& .MuiTab-root': {
-                  minHeight: 64,
-                  fontSize: '0.95rem',
-                  fontWeight: 500,
-                  textTransform: 'none',
-                  minWidth: { xs: 120, sm: 140, md: 160 },
-                  transition: 'all 0.2s ease-in-out',
-                  '&:hover': {
-                    bgcolor: 'action.hover',
-                    borderRadius: '12px 12px 0 0',
-                    transform: 'translateY(-1px)',
-                  },
-                  '&.Mui-selected': {
-                    background: darkMode 
-                      ? 'linear-gradient(135deg, rgba(208, 188, 255, 0.1) 0%, rgba(204, 194, 220, 0.05) 100%)'
-                      : 'linear-gradient(135deg, rgba(103, 80, 164, 0.1) 0%, rgba(98, 91, 113, 0.05) 100%)',
-                  }
-                },
+                minHeight: 56,
                 '& .MuiTabs-indicator': {
                   height: 3,
                   borderRadius: '3px 3px 0 0',
-                  background: darkMode
+                  background: theme => theme.palette.mode === 'dark'
                     ? 'linear-gradient(90deg, #D0BCFF 0%, #CCC2DC 100%)'
                     : 'linear-gradient(90deg, #6750A4 0%, #625B71 100%)',
+                },
+                '& .MuiTab-root': {
+                  minHeight: 56,
+                  fontSize: '0.9rem',
+                  fontWeight: 500,
+                  textTransform: 'none',
+                  minWidth: { xs: 100, sm: 120, md: 140 },
+                  px: { xs: 2, sm: 2.5, md: 3 },
+                  mx: 0.5,
+                  borderRadius: '12px 12px 0 0',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  color: 'text.secondary',
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                    color: 'text.primary',
+                  },
+                  '&.Mui-selected': {
+                    color: 'primary.main',
+                    fontWeight: 600,
+                    bgcolor: theme => theme.palette.mode === 'dark' 
+                      ? 'rgba(208, 188, 255, 0.08)' 
+                      : 'rgba(103, 80, 164, 0.08)',
+                  }
+                },
+                '& .MuiTab-iconWrapper': {
+                  mb: 0.5,
                 }
               }}
             >
@@ -410,41 +399,72 @@ function App() {
                   key={index}
                   icon={tab.icon} 
                   label={tab.label}
-                  iconPosition="start"
+                  iconPosition="top"
                   sx={{
-                    gap: 1,
-                    '& .MuiTab-iconWrapper': {
-                      marginBottom: '0 !important'
+                    '& .MuiSvgIcon-root': {
+                      fontSize: 20,
                     }
                   }}
                 />
               ))}
             </Tabs>
+          </Container>
+        </Box>
 
-            <Box sx={{ 
-              p: { xs: 2, sm: 3, md: 4 }, 
+        {/* Content Area */}
+        <Box sx={{ 
+          flex: 1,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
+          <Container 
+            maxWidth="xl" 
+            sx={{ 
               flex: 1,
-              overflow: 'auto'
-            }}>
-              {tabs.map((tab, index) => (
-                <TabPanel key={index} value={tabValue} index={index}>
-                  {tab.component}
-                </TabPanel>
-              ))}
-            </Box>
-          </Paper>
+              py: 3,
+              px: { xs: 2, sm: 3, md: 4 },
+              overflow: 'auto',
+              '&::-webkit-scrollbar': {
+                width: 8,
+                height: 8,
+              },
+              '&::-webkit-scrollbar-track': {
+                bgcolor: 'transparent',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                bgcolor: 'action.disabled',
+                borderRadius: 4,
+                '&:hover': {
+                  bgcolor: 'action.selected',
+                },
+              },
+            }}
+          >
+            {tabs.map((tab, index) => (
+              <TabPanel key={index} value={tabValue} index={index}>
+                {tab.component}
+              </TabPanel>
+            ))}
+          </Container>
+        </Box>
 
-          {!isElectron && (
-            <Box sx={{ mt: 4, mb: 2, textAlign: 'center' }}>
-              <Typography variant="body2" color="text.secondary">
-                © 2024 SUCA - Professional Subnet Calculator & Cryptography Tools
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Built with React & Material You Design | Modern Network Administration Tools
-              </Typography>
-            </Box>
-          )}
-        </Container>
+        {!isElectron && (
+          <Box sx={{ 
+            py: 2, 
+            textAlign: 'center',
+            borderTop: 1,
+            borderColor: 'divider',
+            bgcolor: 'background.paper',
+          }}>
+            <Typography variant="body2" color="text.secondary">
+              © 2024 SUCA - Professional Subnet Calculator & Cryptography Tools
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Built with React & Material You Design | Modern Network Administration Tools
+            </Typography>
+          </Box>
+        )}
       </Box>
     </ThemeProvider>
   );

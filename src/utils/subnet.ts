@@ -21,6 +21,55 @@ export const ipv4ToBinary = (ip: string): string => {
   ).join('.');
 };
 
+// Additional utility functions for enhanced IPv4 information
+export const ipv4ToBinaryID = (ip: string): string => {
+  return ip.split('.').map(octet => 
+    parseInt(octet).toString(2).padStart(8, '0')
+  ).join('');
+};
+
+export const ipv4ToIntegerID = (ip: string): number => {
+  return ipv4ToLong(ip);
+};
+
+export const ipv4ToHexID = (ip: string): string => {
+  const long = ipv4ToLong(ip);
+  return '0x' + long.toString(16).toLowerCase().padStart(8, '0');
+};
+
+export const ipv4ToInAddrArpa = (ip: string): string => {
+  const parts = ip.split('.');
+  return parts.reverse().join('.') + '.in-addr.arpa';
+};
+
+export const ipv4ToIPv4MappedAddress = (ip: string): string => {
+  const hex = ipv4ToLong(ip).toString(16).padStart(8, '0');
+  return `::ffff:${hex.substring(0, 4)}.${hex.substring(4, 8)}`;
+};
+
+export const ipv4To6to4Prefix = (ip: string): string => {
+  const hex = ipv4ToLong(ip).toString(16).padStart(8, '0');
+  return `2002:${hex.substring(0, 4)}.${hex.substring(4, 8)}::/48`;
+};
+
+export const getUsableHostRange = (network: string, cidr: number): string => {
+  const networkLong = ipv4ToLong(network);
+  const totalHosts = Math.pow(2, 32 - cidr);
+  
+  if (totalHosts <= 2) {
+    return `${network} - ${network}`;
+  }
+  
+  const firstHost = longToIpv4(networkLong + 1);
+  const lastHost = longToIpv4(networkLong + totalHosts - 2);
+  
+  return `${firstHost} - ${lastHost}`;
+};
+
+export const getShortNotation = (ip: string, cidr: number): string => {
+  return `${ip} /${cidr}`;
+};
+
 export const cidrToSubnetMask = (cidr: number): string => {
   const mask = (0xffffffff << (32 - cidr)) >>> 0;
   return longToIpv4(mask);
@@ -59,6 +108,15 @@ export interface IPv4SubnetInfo {
   usableHosts: number;
   ipClass: string;
   isPrivate: boolean;
+  // Additional fields for enhanced information
+  usableHostRange: string;
+  shortNotation: string;
+  binaryID: string;
+  integerID: number;
+  hexID: string;
+  inAddrArpa: string;
+  ipv4MappedAddress: string;
+  sixToFourPrefix: string;
 }
 
 export const calculateIPv4Subnet = (ip: string, cidr: number): IPv4SubnetInfo => {
@@ -101,7 +159,16 @@ export const calculateIPv4Subnet = (ip: string, cidr: number): IPv4SubnetInfo =>
     totalHosts,
     usableHosts,
     ipClass,
-    isPrivate
+    isPrivate,
+    // Additional enhanced fields
+    usableHostRange: getUsableHostRange(network, cidr),
+    shortNotation: getShortNotation(ip, cidr),
+    binaryID: ipv4ToBinaryID(ip),
+    integerID: ipv4ToIntegerID(ip),
+    hexID: ipv4ToHexID(ip),
+    inAddrArpa: ipv4ToInAddrArpa(ip),
+    ipv4MappedAddress: ipv4ToIPv4MappedAddress(ip),
+    sixToFourPrefix: ipv4To6to4Prefix(ip)
   };
 };
 

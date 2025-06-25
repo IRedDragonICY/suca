@@ -1,0 +1,328 @@
+name: 🚀 Build & Release
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  # Enable colored output
+  FORCE_COLOR: 1
+  # Improve npm performance
+  NPM_CONFIG_CACHE: ~/.npm
+  
+jobs:
+  # ===============================
+  # 🧪 TEST & LINT
+  # ===============================
+  test:
+    name: 🧪 Test & Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: 📥 Install dependencies
+        run: npm ci
+        
+      - name: 🧪 Run tests
+        run: npm test -- --coverage --watchAll=false
+        
+      - name: 📊 Upload coverage reports
+        uses: codecov/codecov-action@v3
+        if: success()
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+
+  # ===============================
+  # 🏗️ BUILD MATRIX
+  # ===============================
+  build:
+    name: 🏗️ Build ${{ matrix.os }}
+    needs: test
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            platform: win
+            arch: x64
+            artifact: windows
+            icon: 🪟
+          - os: macos-latest
+            platform: mac
+            arch: universal
+            artifact: macos
+            icon: 🍎
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
+            artifact: linux
+            icon: 🐧
+            
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: 📥 Install dependencies
+        run: npm ci
+        
+      - name: 🛠️ Build React app
+        run: npm run build
+        
+      - name: 📱 Build Electron app for ${{ matrix.icon }} ${{ matrix.platform }}
+        run: npm run dist-${{ matrix.platform }}
+        env:
+          CI: true
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: 📋 List build artifacts
+        shell: bash
+        run: |
+          echo "🎯 Build artifacts for ${{ matrix.platform }}:"
+          ls -la dist/ || echo "No dist directory found"
+          
+      - name: 📦 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: suca-${{ matrix.artifact }}
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.zip
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.tar.gz
+          retention-days: 30
+
+  # ===============================
+  # 📦 PORTABLE BUILD (Windows)
+  # ===============================
+  build-portable:
+    name: 📦 Build Portable (Windows)
+    needs: test
+    runs-on: windows-latest
+    
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: 📥 Install dependencies
+        run: npm ci
+        
+      - name: 🛠️ Build React app
+        run: npm run build
+        
+      - name: 📱 Build Portable app
+        run: npm run dist-portable
+        
+      - name: 📦 Upload portable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: suca-portable
+          path: dist/*.exe
+          retention-days: 30
+
+  # ===============================
+  # 🚀 RELEASE (Only on tags)
+  # ===============================
+  release:
+    name: 🚀 Create Release
+    needs: [build, build-portable]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: 📥 Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          
+      - name: 📋 List downloaded artifacts
+        run: |
+          echo "🎯 Downloaded artifacts:"
+          find artifacts -type f -name "*" | sort
+          
+      - name: 📝 Generate release notes
+        id: release_notes
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          
+          # Get the latest tag before this one
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          # Generate changelog
+          cat > release_notes.md << 'EOF'
+          ## 🎉 SUCA $VERSION Released!
+          
+          > **Professional Subnet Calculator & Cryptography Tools**
+          
+          ### ✨ What's New
+          
+          EOF
+          
+          if [ -n "$PREV_TAG" ]; then
+            echo "### 📝 Changes since $PREV_TAG" >> release_notes.md
+            echo "" >> release_notes.md
+            git log --pretty=format:"- %s" $PREV_TAG..HEAD >> release_notes.md
+          else
+            echo "- 🎉 Initial release of SUCA!" >> release_notes.md
+            echo "- 🌐 IPv4 & IPv6 subnet calculators" >> release_notes.md
+            echo "- 🔐 Advanced cryptography tools" >> release_notes.md
+            echo "- 🌳 Subnet division utilities" >> release_notes.md
+            echo "- 🛠️ Network administration tools" >> release_notes.md
+          fi
+          
+          cat >> release_notes.md << 'EOF'
+          
+          ### 📦 Downloads
+          
+          Choose your platform:
+          
+          | Platform | Package Type | File |
+          |----------|--------------|------|
+          | 🪟 Windows | Installer | `*-Setup.exe` |
+          | 🪟 Windows | Portable | `SUCA-Portable-*.exe` |
+          | 🪟 Windows | Archive | `*-win.zip` |
+          | 🍎 macOS | DMG | `*.dmg` |
+          | 🍎 macOS | Archive | `*-mac.zip` |
+          | 🐧 Linux | AppImage | `*.AppImage` |
+          | 🐧 Linux | Debian | `*.deb` |
+          | 🐧 Linux | Archive | `*.tar.gz` |
+          
+          ### 🛠️ Installation
+          
+          **Windows:**
+          - **Recommended:** Download `SUCA-Portable-*.exe` for standalone usage
+          - **Alternative:** Download `*-Setup.exe` for system installation
+          
+          **macOS:**
+          - Download `*.dmg` and drag to Applications folder
+          
+          **Linux:**
+          - **AppImage:** Download and run `chmod +x *.AppImage && ./[filename].AppImage`
+          - **Debian/Ubuntu:** Install with `sudo dpkg -i *.deb`
+          
+          ### 🌟 Features
+          
+          - 🎯 **Modern Material You Design** with dark/light mode
+          - 🌐 **IPv4 Calculator** - Complete subnet analysis & CIDR/mask support
+          - 🌍 **IPv6 Calculator** - Next-gen IP addressing tools
+          - 🔐 **Cryptography Suite** - Number base conversion, hashing, encoding
+          - 🌳 **Subnet Division** - Advanced network segmentation
+          - 🛠️ **Network Tools** - Professional networking utilities
+          - ⚡ **Performance Optimized** - Debounced calculations & smooth UI
+          - 📱 **Cross-Platform** - Windows, macOS, Linux support
+          
+          ### 🚀 System Requirements
+          
+          - **Windows:** 10/11 (64-bit)
+          - **macOS:** 10.15+ (Catalina or later)
+          - **Linux:** Ubuntu 18.04+, Fedora 32+, or equivalent
+          
+          ---
+          
+          💝 **Thank you for using SUCA!** 
+          
+          Found a bug? Have a feature request? [Open an issue](https://github.com/${{ github.repository }}/issues)!
+          EOF
+          
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
+          cat release_notes.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+      - name: 🏷️ Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.release_notes.outputs.VERSION }}
+          name: "🎉 SUCA ${{ steps.release_notes.outputs.VERSION }} - Professional Network Tools"
+          body: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
+          draft: false
+          prerelease: false
+          files: |
+            artifacts/**/*.exe
+            artifacts/**/*.dmg
+            artifacts/**/*.zip
+            artifacts/**/*.AppImage
+            artifacts/**/*.deb
+            artifacts/**/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: 🎉 Release Success
+        run: |
+          echo "🚀 Release ${{ steps.release_notes.outputs.VERSION }} created successfully!"
+          echo "📦 Artifacts uploaded to GitHub Releases"
+          echo "🌐 Download link: https://github.com/${{ github.repository }}/releases/tag/${{ steps.release_notes.outputs.VERSION }}"
+
+  # ===============================
+  # 🧹 CLEANUP
+  # ===============================
+  cleanup:
+    name: 🧹 Cleanup
+    needs: [build, build-portable, release]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: 🗑️ Delete old artifacts (keep last 10)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: artifacts } = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+            
+            // Sort by created date, newest first
+            const sortedArtifacts = artifacts.artifacts.sort((a, b) => 
+              new Date(b.created_at) - new Date(a.created_at)
+            );
+            
+            // Keep only last 10, delete the rest
+            const toDelete = sortedArtifacts.slice(10);
+            
+            for (const artifact of toDelete) {
+              try {
+                await github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id
+                });
+                console.log(`🗑️ Deleted old artifact: ${artifact.name}`);
+              } catch (error) {
+                console.log(`❌ Failed to delete artifact ${artifact.name}: ${error}`);
+              }
+            }
+            
+            console.log(`✅ Cleanup completed. Kept ${Math.min(10, sortedArtifacts.length)} artifacts.`); 

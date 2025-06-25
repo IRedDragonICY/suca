@@ -35,16 +35,19 @@
     "eject": "react-scripts eject",
     "electron": "electron .",
     "electron-dev": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron .\"",
-    "electron-headless": "npm run build && electron . --no-sandbox",
+    "electron-headless": "npm run build && set ELECTRON_FORCE_STATIC=true&& electron . --no-sandbox",
     "electron-pack": "npm run build && electron-builder",
     "preelectron-pack": "npm run build",
-    "dist": "npm run build && electron-builder --publish=never",
-    "dist-win": "npm run build && electron-builder --win --x64",
-    "dist-mac": "npm run build && electron-builder --mac --universal",
-    "dist-linux": "npm run build && electron-builder --linux --x64",
-    "build:electron": "npm run build && electron-builder build --win --mac --linux --publish=never",
+    "dist": "npm run build && electron-builder --win --x64 --publish=never",
+    "dist-win": "npm run build && electron-builder --win --x64 --publish=never",
+    "dist-mac": "npm run build && electron-builder --mac --universal --publish=never",
+    "dist-linux": "npm run build && electron-builder --linux --x64 --publish=never",
+    "dist-all": "npm run build && electron-builder build --win --mac --linux --publish=never",
+    "dist-portable": "npm run build && electron-builder --win portable --x64 --publish=never",
     "dev": "npm run electron-dev",
-    "start:electron": "npm run electron-headless"
+    "start:electron": "npm run electron-headless",
+    "electron-static": "npm run build && set ELECTRON_FORCE_STATIC=true&& electron .",
+    "test-production": "npm run build && set NODE_ENV=production&& electron ."
   },
   "eslintConfig": {
     "extends": [
@@ -71,12 +74,12 @@
     "wait-on": "^8.0.3"
   },
   "build": {
+    "extends": null,
     "appId": "com.suca.subnet-calculator",
     "productName": "SUCA - Subnet Calculator",
     "copyright": "Copyright © 2024 SUCA Team",
     "directories": {
-      "buildResources": "public",
-      "output": "dist"
+      "buildResources": "public"
     },
     "files": [
       "build/**/*",
@@ -92,7 +95,7 @@
     ],
     "mac": {
       "category": "public.app-category.developer-tools",
-      "icon": "public/favicon.ico",
+      "icon": "public/logo512.png",
       "target": [
         {
           "target": "dmg",
@@ -108,7 +111,7 @@
       "gatekeeperAssess": false
     },
     "win": {
-      "icon": "public/favicon.ico",
+      "icon": "public/logo512.png",
       "target": [
         {
           "target": "nsis",
@@ -123,10 +126,11 @@
           "arch": ["x64"]
         }
       ],
-      "requestedExecutionLevel": "asInvoker"
+      "requestedExecutionLevel": "asInvoker",
+      "verifyUpdateCodeSignature": false
     },
     "linux": {
-      "icon": "public/favicon.ico",
+      "icon": "public/logo512.png",
       "category": "Network",
       "target": [
         {
@@ -147,18 +151,21 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "allowElevation": true,
-      "installerIcon": "public/favicon.ico",
-      "uninstallerIcon": "public/favicon.ico",
+      "installerIcon": "public/logo512.png",
+      "uninstallerIcon": "public/logo512.png",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "SUCA - Subnet Calculator"
+      "shortcutName": "SUCA - Subnet Calculator",
+      "displayLanguageSelector": false,
+      "installerLanguages": ["en_US"],
+      "language": "1033"
     },
     "portable": {
       "artifactName": "SUCA-Portable-${version}.${ext}"
     },
     "dmg": {
       "title": "SUCA - Subnet Calculator",
-      "icon": "public/favicon.ico",
+      "icon": "public/logo512.png",
       "backgroundColor": "#6750A4",
       "window": {
         "width": 660,

@@ -1,0 +1,91 @@
+version: 2
+updates:
+  # ===============================
+  # 📦 NPM DEPENDENCIES
+  # ===============================
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "@yourusername"  # Replace with actual GitHub username
+    assignees:
+      - "@yourusername"  # Replace with actual GitHub username
+    commit-message:
+      prefix: "⬆️ deps"
+      prefix-development: "⬆️ deps-dev"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "automation"
+    versioning-strategy: "increase"
+    rebase-strategy: "auto"
+    
+    # Group related updates
+    groups:
+      # React ecosystem
+      react:
+        patterns:
+          - "react*"
+          - "@types/react*"
+        update-types:
+          - "minor"
+          - "patch"
+          
+      # Material-UI ecosystem  
+      mui:
+        patterns:
+          - "@mui/*"
+          - "@emotion/*"
+        update-types:
+          - "minor"
+          - "patch"
+          
+      # Testing ecosystem
+      testing:
+        patterns:
+          - "@testing-library/*"
+          - "jest*"
+        update-types:
+          - "minor"
+          - "patch"
+          
+      # Electron ecosystem
+      electron:
+        patterns:
+          - "electron*"
+        update-types:
+          - "minor"
+          - "patch"
+          
+      # Development dependencies
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor" 
+          - "patch"
+
+  # ===============================
+  # 🐙 GITHUB ACTIONS
+  # ===============================
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "06:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "@yourusername"  # Replace with actual GitHub username
+    commit-message:
+      prefix: "⬆️ actions"
+      include: "scope"
+    labels:
+      - "github-actions"
+      - "automation"
+    rebase-strategy: "auto" 

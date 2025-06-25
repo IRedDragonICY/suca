@@ -11,3 +11,74 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Modern Material You Scrollbar Styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(103, 80, 164, 0.3) transparent;
+}
+
+/* WebKit browsers (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(103, 80, 164, 0.2);
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background-clip: content-box;
+  transition: all 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(103, 80, 164, 0.4);
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: rgba(103, 80, 164, 0.6);
+  background-clip: content-box;
+}
+
+/* Dark mode scrollbar */
+[data-mui-color-scheme="dark"] *::-webkit-scrollbar-thumb {
+  background: rgba(208, 188, 255, 0.2);
+  background-clip: content-box;
+}
+
+[data-mui-color-scheme="dark"] *::-webkit-scrollbar-thumb:hover {
+  background: rgba(208, 188, 255, 0.4);
+  background-clip: content-box;
+}
+
+[data-mui-color-scheme="dark"] *::-webkit-scrollbar-thumb:active {
+  background: rgba(208, 188, 255, 0.6);
+  background-clip: content-box;
+}
+
+/* Corner styling */
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* For table containers and scrollable areas */
+.MuiTableContainer-root::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.MuiTableContainer-root::-webkit-scrollbar-thumb {
+  background: rgba(103, 80, 164, 0.3);
+  border-radius: 3px;
+}
+
+.MuiTableContainer-root::-webkit-scrollbar-thumb:hover {
+  background: rgba(103, 80, 164, 0.5);
+}
