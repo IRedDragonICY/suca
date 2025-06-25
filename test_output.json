@@ -1,0 +1,17 @@
+{
+  "network": "192.168.1.0",
+  "networkBinary": "11000000.10101000.00000001.00000000",
+  "broadcast": "192.168.1.255",
+  "broadcastBinary": "11000000.10101000.00000001.11111111",
+  "firstHost": "192.168.1.1",
+  "lastHost": "192.168.1.254",
+  "subnetMask": "255.255.255.0",
+  "subnetMaskBinary": "11111111.11111111.11111111.00000000",
+  "wildcardMask": "0.0.0.255",
+  "wildcardMaskBinary": "00000000.00000000.00000000.11111111",
+  "cidr": 24,
+  "totalHosts": 256,
+  "usableHosts": 254,
+  "ipClass": "C",
+  "isPrivate": true
+}
